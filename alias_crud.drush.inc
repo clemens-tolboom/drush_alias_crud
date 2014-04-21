@@ -89,7 +89,7 @@ function drush_alias_crud_alias_create_file($domain, $environment = 'dev') {
   // Set some convenience defaults.
   drush_log("Adding defaults for '$domain.$environment'.");
   _drush_alias_crud_scan_or_set($tree, "/$environment/root", getcwd());
-  _drush_alias_crud_scan_or_set($tree, "/$environment/fqdn", "http://$domain");
+  _drush_alias_crud_scan_or_set($tree, "/$environment/uri", "http://$domain");
 
   drush_log("Creating file for domain '$domain'.");
   _drush_alias_crud_put_contents($domain, $tree);
