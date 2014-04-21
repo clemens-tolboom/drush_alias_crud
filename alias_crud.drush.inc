@@ -91,8 +91,7 @@ function drush_alias_crud_alias_create_file($domain, $environment = 'dev') {
   _drush_alias_crud_scan_or_set($tree, "/$environment/root", getcwd());
   _drush_alias_crud_scan_or_set($tree, "/$environment/uri", "http://$domain");
 
-  drush_log("Creating file for domain '$domain'.");
-  _drush_alias_crud_put_contents($domain, $tree);
+  _drush_alias_crud_put_contents($domain, $tree, TRUE);
 }
 
 function drush_alias_crud_alias_get($domain, $selector = '/') {
@@ -130,7 +129,7 @@ function drush_alias_crud_alias_set($domain, $selector, $value) {
 
   _drush_alias_crud_scan_or_set($tree, $selector, $value);
 
-  _drush_alias_crud_put_contents($domain, $tree, FALSE);
+  _drush_alias_crud_put_contents($domain, $tree);
 }
 
 function drush_alias_crud_alias_delete($domain, $selector) {
@@ -145,9 +144,7 @@ function drush_alias_crud_alias_delete($domain, $selector) {
   if (empty($tree)) {
     return;
   }
-  var_dump($tree);
   _drush_alias_crud_scan_or_set($tree, $selector, NULL, TRUE);
-  var_dump($tree);
   _drush_alias_crud_put_contents($domain, $tree, FALSE);
 }
 
@@ -190,9 +187,11 @@ function _drush_alias_crud_scan_or_set(&$subtree, $selector, $value = NULL, $del
           drush_log("Expanding tree : '$path/'");
           $subtree[$path] = array();
         }
-        else if (!is_array($subtree[$path])) {
-          drush_set_error("You selector is already set to a value before '/" . join("/", $paths) . "'. Maybe delete it first?");
-          return FALSE;
+        else {
+          if (!is_array($subtree[$path])) {
+            drush_set_error("You selector is already set to a value before '/" . join("/", $paths) . "'. Maybe delete it first?");
+            return FALSE;
+          }
         }
       }
     }
@@ -234,11 +233,10 @@ function _drush_alias_crud_get_contents($domain) {
 function _drush_alias_crud_put_contents($domain, $tree, $create = FALSE) {
   $file = _drush_alias_crud_get_filename($domain);
   if ($create) {
-    drush_log("Creating: " . $file);
+    drush_log("Creating file for domain '$domain'.");
   }
   else {
-    drush_log("Updating: " . $file);
-
+    drush_log("Updating file for domain '$domain'.");
   }
   $contents = array();
   $contents[] = '<?php' . PHP_EOL;
